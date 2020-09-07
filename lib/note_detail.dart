@@ -3,6 +3,8 @@ import 'package:notebook/models/category.dart';
 import 'package:notebook/models/note.dart';
 import 'package:notebook/utils/dbHelper.dart';
 
+import 'main.dart';
+
 class NoteDetail extends StatefulWidget {
   @override
   _NoteDetailState createState() => _NoteDetailState();
@@ -17,7 +19,7 @@ class _NoteDetailState extends State<NoteDetail> {
   var formKey = GlobalKey<FormState>();
   DbHelper dbHelper;
   List<Category> categoryList;
-  List<String> priorityList = ["Low","Medium","High"];
+  List<String> priorityList = ["Low", "Medium", "High"];
 
   @override
   void initState() {
@@ -107,14 +109,21 @@ class _NoteDetailState extends State<NoteDetail> {
                   ButtonBar(
                     alignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      RaisedButton(child: Text("Cancel"),onPressed: () => Navigator.pop(context)),
-                      RaisedButton(child: Text("Save"),onPressed: () {
-                        if(formKey.currentState.validate()){
-                          formKey.currentState.save();
-                          dbHelper.insertNote(Note(categoryId, noteTitle, noteContent, " ", priorityId));
-                        }
-                        Navigator.pop(context);
-                      })
+                      RaisedButton(
+                          child: Text("Cancel"),
+                          onPressed: () => Navigator.pop(context)),
+                      RaisedButton(
+                          child: Text("Save"),
+                          onPressed: () {
+                            if (formKey.currentState.validate()) {
+                              formKey.currentState.save();
+                              var today = DateTime.now();
+                              var noteDate = dbHelper.dateFormat(today);
+                              dbHelper.insertNote(Note(categoryId, noteTitle,
+                                  noteContent, noteDate, priorityId));
+                                Navigator.pop(context,true);
+                            }
+                          })
                     ],
                   )
                 ],
@@ -137,7 +146,10 @@ class _NoteDetailState extends State<NoteDetail> {
 
   List<DropdownMenuItem<int>> buildPriorityItems() {
     return priorityList.map((value) {
-      return DropdownMenuItem<int>(child: Text(value),value: priorityList.indexOf(value),);
+      return DropdownMenuItem<int>(
+        child: Text(value),
+        value: priorityList.indexOf(value),
+      );
     }).toList();
   }
 }
