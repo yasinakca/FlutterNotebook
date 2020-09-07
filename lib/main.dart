@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:notebook/models/category.dart';
 import 'package:notebook/note_detail.dart';
@@ -41,7 +43,6 @@ class _HomeState extends State<Home> {
     super.initState();
     dbHelper = DbHelper();
     noteList = List<Note>();
-    print("init ssdfsdlf");
   }
 
   @override
@@ -124,11 +125,13 @@ class _HomeState extends State<Home> {
             builder: (context, AsyncSnapshot<List<Note>> snapshot) {
               if (snapshot.hasData) {
                 noteList = snapshot.data;
+                sleep(Duration(milliseconds: 500));
                 return ListView.builder(
                   itemCount: noteList.length,
                   itemBuilder: (context, index) {
                     return ExpansionTile(
-                     title: Text(noteList[index].note_title),
+                      leading: buildPriority(noteList[index].note_priority),
+                      title: Text(noteList[index].note_title),
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -136,29 +139,50 @@ class _HomeState extends State<Home> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Text("Kategori: "),
                                   Text(noteList[index].category_name),
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Text("Created: "),
                                   Text(noteList[index].note_date)
                                 ],
                               ),
-                              Center(child: Text(noteList[index].note_content),)
+                              Center(
+                                child: Text(noteList[index].note_content),
+                              )
                             ],
                           ),
+                        ),
+                        ButtonBar(
+                          alignment: MainAxisAlignment.end,
+                          children: [
+                            FlatButton(
+                              child: Text("Delete"),
+                              onPressed: () {
+                                deleteItem(noteList[index].note_id);
+                              },
+                            ),
+                            FlatButton(
+                              child: Text("Update"),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute (builder: (context) => NoteDetail(selectedNote: noteList[index],)));
+                              },
+                            ),
+                          ],
                         )
                       ],
                     );
                   },
                 );
               } else {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: Text("Loading..."));
               }
             },
           ),
@@ -179,5 +203,40 @@ class _HomeState extends State<Home> {
     if (result != null && result) {
       setState(() {});
     }
+  }
+
+  Widget buildPriority(int note_priority) {
+    switch (note_priority) {
+      case 0:
+        return CircleAvatar(
+          backgroundColor: Colors.deepOrangeAccent.shade100,
+          child: Text("."),
+        );
+        break;
+
+      case 1:
+        return CircleAvatar(
+          backgroundColor: Colors.deepOrangeAccent.shade400,
+          child: Text(".."),
+        );
+        break;
+
+      case 2:
+        return CircleAvatar(
+          backgroundColor: Colors.deepOrangeAccent.shade700,
+          child: Text("..."),
+        );
+        break;
+    }
+  }
+
+  void deleteItem(int note_id) {
+    dbHelper.deleteNote(note_id).then((value) {
+      if (value > 0) {
+        scaffoldKey.currentState
+            .showSnackBar(SnackBar(content: Text("Item deleted"),duration: Duration(seconds: 1),));
+      }
+      setState(() {});
+    });
   }
 }

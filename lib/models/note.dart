@@ -10,7 +10,7 @@ class Note{
   Note(this.category_id, this.note_title, this.note_content,
       this.note_date, this.note_priority);
 
-  Note.withId(this.note_id, this.category_id, this.category_name, this.note_title,
+  Note.withId(this.note_id, this.category_id, this.note_title,
       this.note_content, this.note_date, this.note_priority);
 
   Map<String,dynamic> toMap(){

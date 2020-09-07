@@ -116,7 +116,7 @@ class DbHelper {
 
   Future<int> updateNote(Note note) async {
     var db = await getDb();
-    var result = await db.update("note", note.toMap());
+    var result = await db.update("note", note.toMap(), where: "note_id = ?", whereArgs: [note.note_id]);
     return result;
   }
 

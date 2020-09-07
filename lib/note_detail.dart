@@ -6,6 +6,10 @@ import 'package:notebook/utils/dbHelper.dart';
 import 'main.dart';
 
 class NoteDetail extends StatefulWidget {
+  Note selectedNote;
+
+  NoteDetail({this.selectedNote});
+
   @override
   _NoteDetailState createState() => _NoteDetailState();
 }
@@ -57,7 +61,7 @@ class _NoteDetailState extends State<NoteDetail> {
                           padding: const EdgeInsets.all(8.0),
                           child: DropdownButton<int>(
                               items: buildCategoryItems(),
-                              value: categoryId,
+                              value: widget.selectedNote != null ? widget.selectedNote.category_id : categoryId,
                               onChanged: (value) {
                                 setState(() {
                                   categoryId = value;
@@ -70,6 +74,7 @@ class _NoteDetailState extends State<NoteDetail> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
+                      initialValue: widget.selectedNote != null ? widget.selectedNote.note_title : " ",
                       onSaved: (value) {
                         setState(() {
                           noteTitle = value;
@@ -82,6 +87,7 @@ class _NoteDetailState extends State<NoteDetail> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
+                      initialValue: widget.selectedNote != null ? widget.selectedNote.note_content : "",
                       onSaved: (value) {
                         setState(() {
                           noteContent = value;
@@ -97,7 +103,7 @@ class _NoteDetailState extends State<NoteDetail> {
                       Text("Priority"),
                       DropdownButtonHideUnderline(
                           child: DropdownButton<int>(
-                              value: priorityId,
+                              value: widget.selectedNote != null ? widget.selectedNote.note_priority : priorityId,
                               items: buildPriorityItems(),
                               onChanged: (value) {
                                 setState(() {
@@ -118,10 +124,18 @@ class _NoteDetailState extends State<NoteDetail> {
                             if (formKey.currentState.validate()) {
                               formKey.currentState.save();
                               var today = DateTime.now();
-                              var noteDate = dbHelper.dateFormat(today);
-                              dbHelper.insertNote(Note(categoryId, noteTitle,
-                                  noteContent, noteDate, priorityId));
+                              if(widget.selectedNote == null){
+                                dbHelper.insertNote(Note(categoryId, noteTitle,
+                                    noteContent, today.toString(), priorityId));
                                 Navigator.pop(context,true);
+                              }else{
+                                dbHelper.updateNote(Note.withId(widget.selectedNote.note_id, categoryId, noteTitle, noteContent, dbHelper.dateFormat(today).toString(), priorityId)).then((value){
+                                  if(value != 0){
+                                    goToHome();
+                                  }
+                                });
+                              }
+                              
                             }
                           })
                     ],
@@ -151,5 +165,21 @@ class _NoteDetailState extends State<NoteDetail> {
         value: priorityList.indexOf(value),
       );
     }).toList();
+  }
+
+  void goToHome() async{
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(),
+        ));
+
+    //below you can get your result and update the view with setState
+    //changing the value if you want, i just wanted know if i have to
+    //update, and if is true, reload state
+
+    if (result != null && result) {
+      setState(() {});
+    }
   }
 }
