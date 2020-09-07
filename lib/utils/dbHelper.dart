@@ -87,7 +87,7 @@ class DbHelper{
 
   Future<List<Map>> getNote() async{
     var db = await getDb();
-    var result = await db.query("note");
+    var result = await db.rawQuery("Select * from note join category on note.category_id = category.category_id");
     return result;
   }
 

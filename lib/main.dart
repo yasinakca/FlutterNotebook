@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notebook/models/category.dart';
+import 'package:notebook/note_detail.dart';
 import 'package:notebook/utils/dbHelper.dart';
 
 void main() => runApp(MyApp());
@@ -97,7 +98,7 @@ class _HomeState extends State<Home> {
           ),
           FloatingActionButton(
             child: Icon(Icons.add_circle_outline),
-            onPressed: () => null,
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => NoteDetail())),
             heroTag: "add note",
           ),
         ],
