@@ -66,6 +66,16 @@ class DbHelper {
     return result;
   }
 
+  Future<List<Category>> getCategoryList() async{
+    List<Category> categoryList = List<Category>();
+    getCategory().then((value){
+      for(Map map in value){
+        categoryList.add(Category.fromMap(map));
+      }
+      return categoryList;
+    });
+  }
+
   Future<int> insertCategory(Category category) async {
     var db = await getDb();
     var result = await db.insert("category", category.toMap());

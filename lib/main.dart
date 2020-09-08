@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:notebook/category.dart';
 import 'package:notebook/models/category.dart';
 import 'package:notebook/note_detail.dart';
 import 'package:notebook/utils/dbHelper.dart';
@@ -47,7 +48,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    print("build ajknsd");
     return Scaffold(
         key: scaffoldKey,
         floatingActionButton: Column(
@@ -116,9 +116,18 @@ class _HomeState extends State<Home> {
             ),
           ],
         ),
-        appBar: AppBar(
-          title: Text("Notes"),
-        ),
+        appBar: AppBar(title: Text("Notes"), actions: [
+          PopupMenuButton(itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                  child: ListTile(
+                leading: Icon(Icons.category),
+                title: Text("Categories"),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryPage())),
+              ))
+            ];
+          }),
+        ]),
         body: Container(
           child: FutureBuilder(
             future: dbHelper.getNoteList(),
@@ -172,7 +181,12 @@ class _HomeState extends State<Home> {
                             FlatButton(
                               child: Text("Update"),
                               onPressed: () {
-                                Navigator.push(context, MaterialPageRoute (builder: (context) => NoteDetail(selectedNote: noteList[index],)));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => NoteDetail(
+                                              selectedNote: noteList[index],
+                                            )));
                               },
                             ),
                           ],
@@ -233,8 +247,10 @@ class _HomeState extends State<Home> {
   void deleteItem(int note_id) {
     dbHelper.deleteNote(note_id).then((value) {
       if (value > 0) {
-        scaffoldKey.currentState
-            .showSnackBar(SnackBar(content: Text("Item deleted"),duration: Duration(seconds: 1),));
+        scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text("Item deleted"),
+          duration: Duration(seconds: 1),
+        ));
       }
       setState(() {});
     });
